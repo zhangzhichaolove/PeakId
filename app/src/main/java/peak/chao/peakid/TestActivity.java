@@ -7,7 +7,7 @@ import android.widget.TextView;
 import peak.chao.annotation.Id;
 import peak.chao.id.BindIdClass;
 
-public class MainActivity extends AppCompatActivity {
+public class TestActivity extends AppCompatActivity {
     @Id(R.id.tv)
     TextView tv;
     @Id(R.id.tv)

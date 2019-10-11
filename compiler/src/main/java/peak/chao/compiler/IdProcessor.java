@@ -8,7 +8,11 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -23,6 +27,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
 
@@ -106,10 +111,22 @@ public class IdProcessor extends AbstractProcessor {
 //        }
 
         Set<? extends Element> elements = roundEnvironment.getElementsAnnotatedWith(Id.class);
+        Map<String, List<VariableElement>> bindMap = new HashMap<>();
         for (Element e : elements) {
             Element enclosingElement = e.getEnclosingElement();
-            messager.printMessage(Diagnostic.Kind.NOTE, "IdProcessor >> init" + e.getSimpleName().toString() + " in " + enclosingElement.getSimpleName().toString());
+            messager.printMessage(Diagnostic.Kind.NOTE, "IdProcessor >> " + e.getSimpleName().toString() + " in " + enclosingElement.getSimpleName().toString());
+            VariableElement variableElement = (VariableElement) e;
+            String activityName = elementUtils.getPackageOf(enclosingElement).getQualifiedName().toString() + "." + enclosingElement.getSimpleName().toString();
+            List<VariableElement> variableElements = bindMap.get(activityName);
+            if (variableElements == null) {
+                variableElements = new ArrayList<>();
+                bindMap.put(activityName, variableElements);
+            }
+            variableElements.add(variableElement);
+        }
 
+        for (Element e : elements) {
+            Element enclosingElement = e.getEnclosingElement();
             //构建bind方法
             MethodSpec bind = MethodSpec.methodBuilder("bind")
                     .addAnnotation(Override.class)
